@@ -1,0 +1,10 @@
+## Interface:11307
+## Title: HorsemenWhisper
+## Author: Deathbaron
+## Version: 0.1
+## Dependencies: DBM-Core
+## Notes: Horsemen Whisper addon
+## SavedVariables: 
+
+HorsemenWhisper.lua
+Libs\ChatThrottleLib\ChatThrottleLib.xml
