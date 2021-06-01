@@ -1,0 +1,10 @@
+## Interface:11307
+## Title: BossTimer
+## Author: Deathbaron
+## Version: 0.1
+## Dependencies: DBM-Core
+## Notes: Boss Timer addon based on DBM events
+## SavedVariables: 
+
+BossTimer.lua
+BossTimer.xml
