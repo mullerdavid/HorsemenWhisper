@@ -20,20 +20,24 @@ local function ProcessCommand(msg)
 		if frame:IsEventRegistered("UPDATE_MOUSEOVER_UNIT")
 		then
 			frame:UnRegisterEvent("UPDATE_MOUSEOVER_UNIT")
+			frame:UnRegisterEvent("PLAYER_LEAVE_COMBAT")
 			print("Automark off")
 		else
 			frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+			frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
 			L.ClearState()
 			print("Automark on")
 		end
-	elseif cmdlower == "on"
+	elseif cmdlower == "on" or cmdlower == "1"
 	then
 		frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+		frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
 		L.ClearState()
 		print("Automark on")
-	elseif cmdlower == "off"
+	elseif cmdlower == "off" or cmdlower == "0"
 	then
 		frame:UnRegisterEvent("UPDATE_MOUSEOVER_UNIT")
+		frame:UnRegisterEvent("PLAYER_LEAVE_COMBAT")
 		print("Automark off")
 	end
 end
@@ -51,7 +55,7 @@ function L.ClearState()
 		timer:Cancel()
 		timer = nil
 	end
-	print("Marks cleared")
+	print("Mark states cleared")
 end
 
 function L.StartClearStateTimer()
@@ -111,6 +115,9 @@ local function OnEvent(self, event, arg1)
 	elseif event == "UPDATE_MOUSEOVER_UNIT"
 	then
 		OnMouseOverUpdate()
+	elseif event == "PLAYER_LEAVE_COMBAT"
+	then
+		L.ClearState()
 	end
 end
 
