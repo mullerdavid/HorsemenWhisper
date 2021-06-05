@@ -3,11 +3,39 @@ local L = {}
 
 _G["SLASH_"..ADDON.."1"] = "/automark"
 
+Automark_settings = Automark_settings or {}
+
+
 local frame = CreateFrame("Frame")
 local timer = nil
 local markState = {} 
 local markGuid = {} 
 local skull,cross,circle,star,square,triangle,diamond,moon = 8,7,2,1,6,4,3,5
+
+L.db = {
+	["Time-Lost Controller"] = {skull, cross},
+	["Time-Lost Scryer"] = {skull, cross},
+	["Time-Lost Shadowmage"] = {skull, cross},
+	["Cabal Spellbinder"] = {skull, cross},
+}
+
+function L.Enable()
+	if not frame:IsEventRegistered("UPDATE_MOUSEOVER_UNIT")
+	then
+		Automark_settings.enabled = true
+		frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+		frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
+		L.ClearState()
+		print("Automark on")
+	end
+end
+
+function L.Disable()
+	Automark_settings.enabled = false
+	frame:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
+	frame:UnregisterEvent("PLAYER_LEAVE_COMBAT")
+	print("Automark off")
+end
 
 local function ProcessCommand(msg)
 	local _, _, cmd, args = string.find(msg or "", "%s?(%w+)%s?(.*)")
@@ -19,31 +47,25 @@ local function ProcessCommand(msg)
 	then
 		if frame:IsEventRegistered("UPDATE_MOUSEOVER_UNIT")
 		then
-			frame:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
-			frame:UnregisterEvent("PLAYER_LEAVE_COMBAT")
-			print("Automark off")
+			L.Disable()
 		else
-			frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-			frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
-			L.ClearState()
-			print("Automark on")
+			L.Enable()
 		end
 	elseif cmdlower == "on" or cmdlower == "1"
 	then
-		frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-		frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
-		L.ClearState()
-		print("Automark on")
+		L.Enable()
 	elseif cmdlower == "off" or cmdlower == "0"
 	then
-		frame:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
-		frame:UnregisterEvent("PLAYER_LEAVE_COMBAT")
-		print("Automark off")
+		L.Disable()
 	end
 end
 
 local function Init()
 	print(ADDON.." Loaded.")
+	if Automark_settings.enabled
+	then
+		L.Enable()
+	end
 end
 
 
@@ -123,9 +145,3 @@ end
 
 frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", OnEvent)
-
-
-L.db = {
-	["name"] = {skull, cross},
-	["another"] = {cross, moon},
-}

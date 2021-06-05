@@ -4,6 +4,6 @@
 ## Version: 0.1
 ## Dependencies: 
 ## Notes: Automark
-## SavedVariables: 
+## SavedVariables: Automark_settings
 
 Automark.lua
