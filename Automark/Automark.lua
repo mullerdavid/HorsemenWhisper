@@ -17,6 +17,7 @@ L.db = {
 	["Time-Lost Scryer"] = {skull, cross},
 	["Time-Lost Shadowmage"] = {skull, cross},
 	["Cabal Spellbinder"] = {skull, cross},
+	["Coilfang Sorceress"] = {skull, cross},
 }
 
 function L.Enable()
@@ -115,7 +116,7 @@ local function OnMouseOverUpdate()
 	local unit = "mouseover"
 	local name = UnitName(unit)
 	local guid = UnitGUID(unit)
-	if name and not GetRaidTargetIndex(unit) and not UnitIsDead(unit) and UnitIsEnemy("player", unit) and not markGuid[guid]
+	if name and not GetRaidTargetIndex(unit) and not UnitIsDead(unit) and UnitCanAttack("player", unit) and not markGuid[guid]
 	then
 		local mark = L.GetNextFreeMark(L.db[name])
 		if mark
