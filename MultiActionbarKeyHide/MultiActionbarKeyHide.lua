@@ -11,7 +11,7 @@ local function Init()
 			if string.find(name, "^MultiBarBottomLeftButton%d+$") or string.find(name, "^MultiBarBottomRightButton%d+$") or string.find(name, "^MultiBarLeftButton%d+$") or string.find(name, "^MultiBarRightButton%d+$")
 			then
 				frame.HotKey:Hide()
-				print(name)
+				hooksecurefunc(frame.HotKey, "Show", function() frame:Hide() end)
 			end
 		end
 		frame = EnumerateFrames(frame)
