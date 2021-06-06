@@ -20,22 +20,22 @@ L.db = {
 	["Coilfang Sorceress"] = {skull, cross},
 }
 
-function L.Enable()
+function L.Enable(suppressprint)
 	if not frame:IsEventRegistered("UPDATE_MOUSEOVER_UNIT")
 	then
 		Automark_settings.enabled = true
 		frame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 		frame:RegisterEvent("PLAYER_LEAVE_COMBAT")
 		L.ClearState()
-		print("Automark on")
+		if not suppressprint then print("Automark on") end
 	end
 end
 
-function L.Disable()
+function L.Disable(suppressprint)
 	Automark_settings.enabled = false
 	frame:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
 	frame:UnregisterEvent("PLAYER_LEAVE_COMBAT")
-	print("Automark off")
+	if not suppressprint then print("Automark off") end
 end
 
 local function ProcessCommand(msg)
@@ -62,10 +62,10 @@ local function ProcessCommand(msg)
 end
 
 local function Init()
-	print(ADDON.." Loaded.")
+	-- print(ADDON.." Loaded.")
 	if Automark_settings.enabled
 	then
-		L.Enable()
+		L.Enable(true)
 	end
 end
 
