@@ -1,0 +1,9 @@
+## Interface:20501
+## Title: QuartzBigBorder
+## Author: Deathbaron
+## Version: 1.0
+## Dependencies: Quartz
+## Notes: Quartz Big Border plugin
+## SavedVariables: 
+
+QuartzBigBorder.lua
