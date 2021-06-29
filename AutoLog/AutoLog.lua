@@ -9,7 +9,7 @@ end
 
 local function UpdateZone()
 	local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceID, instanceGroupSize, LfgDungeonID = GetInstanceInfo()
-	if maxPlayers >= 10
+	if instanceType == "raid"
 	then
 		if (not LoggingCombat())
 		then
