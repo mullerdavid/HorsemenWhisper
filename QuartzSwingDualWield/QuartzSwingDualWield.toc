@@ -1,0 +1,9 @@
+## Interface:20501
+## Title: QuartzSwingDualWield
+## Author: Deathbaron
+## Version: 1.0
+## Dependencies: Quartz
+## Notes: Quartz Swing plugin for dual wield
+## SavedVariables: 
+
+QuartzSwingDualWield.lua
