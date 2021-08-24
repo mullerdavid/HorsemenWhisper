@@ -1,0 +1,9 @@
+## Interface:11307
+## Title: RaidFrameDispelBorder
+## Author: Deathbaron
+## Version: 0.1
+## Dependencies: 
+## Notes: 
+## SavedVariables: 
+
+RaidFrameDispelBorder.lua
