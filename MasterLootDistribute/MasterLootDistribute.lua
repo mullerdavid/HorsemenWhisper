@@ -14,6 +14,59 @@ MasterLootDistribute_Profiles = nil
 local frame = CreateFrame("Frame")
 local event_registered = false
 local addon_loaded = false
+local autoloot = false
+
+local function MasterLootDistribute_OnLootMethodChanged()
+	local lootmethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod();
+	local playerRaidID= UnitInRaid("player")
+	local inRaid = IsInRaid()
+	if lootmethod == "master" and ((inRaid and masterlooterRaidID==playerRaidID) or (not inRaid and masterlooterPartyID==0)) or autoloot
+	then
+		event_registered = true
+		frame:RegisterEvent("LOOT_READY")
+		print("You are the masterlooter or autoloot is turned on, activating auto distribution.")
+	else
+		if event_registered
+		then
+			print("You are not the masterlooter anymore and autoloot is disabled, stopping auto distribution.")
+		end
+		event_registered = false
+		frame:UnregisterEvent("LOOT_READY")
+	end
+end
+
+local function MasterLootDistribute_OnLootReady()
+	for i = GetNumLootItems(),1,-1
+	do
+		if (LootSlotHasItem(i)) 
+		then
+			local iteminfo, done = GetLootSlotLink(i), false;
+			if iteminfo
+			then
+				local _, itemid = strsplit(":", iteminfo)
+				local candidate = MasterLootDistribute_Current[itemid]
+				if candidate
+				then
+					for ci = 1, 40 
+					do
+						if GetMasterLootCandidate(i, ci) == candidate
+						then 
+							GiveMasterLoot(i, ci)
+							done = true
+						end
+					end
+				end
+			end
+			if (autoloot and not done)
+			then
+				LootSlot(i)
+				ConfirmLootSlot(i)
+			end
+		else
+			LootSlot(i)
+		end
+    end
+end
 
 local function ProcessCommand(msg)
 	local _, _, cmd, args = string.find(msg, "%s?(%w+)%s?(.*)")
@@ -67,55 +120,19 @@ local function ProcessCommand(msg)
 	then
 		MasterLootDistribute_Current[args] = nil
 		print("Item " .. args .. " deleted from current.")
-	else
-		print("Syntax: " .. SLASH_MasterLootDistribute1 .. " ( print | reset | save name | load name | clear | add itemid character | del itemid )");
-	end
-end
-
-local function MasterLootDistribute_OnLootMethodChanged()
-	local lootmethod, masterlooterPartyID, masterlooterRaidID = GetLootMethod();
-	local playerRaidID= UnitInRaid("player")
-	local inRaid = IsInRaid()
-	if lootmethod == "master" and ((inRaid and masterlooterRaidID==playerRaidID) or (not inRaid and masterlooterPartyID==0))
+	elseif cmd == "autoloot" 
 	then
-		event_registered = true
-		frame:RegisterEvent("LOOT_READY")
-		print("You are the masterlooter, activating auto distribution.")
-	else
-		if event_registered
+		if (args=="on")
 		then
-			print("You are not the masterlooter anymore, stopping auto distribution.")
-		end
-		event_registered = false
-		frame:UnregisterEvent("LOOT_READY")
-	end
-end
-
-local function MasterLootDistribute_OnLootReady()
-	for i = GetNumLootItems(),1,-1
-	do
-		if (LootSlotHasItem(i)) 
-		then
-			local iteminfo = GetLootSlotLink(i);
-			if iteminfo
-			then
-				local _, itemid = strsplit(":", iteminfo)
-				local candidate = MasterLootDistribute_Current[itemid]
-				if candidate
-				then
-					for ci = 1, 40 
-					do
-						if GetMasterLootCandidate(i, ci) == candidate
-						then 
-							GiveMasterLoot(i, ci)
-						end
-					end
-				end
-			end
+			autoloot = true
+			MasterLootDistribute_OnLootMethodChanged()
 		else
-			LootSlot(i)
+			autoloot = false
+			MasterLootDistribute_OnLootMethodChanged()
 		end
-    end
+	else
+		print("Syntax: " .. SLASH_MasterLootDistribute1 .. " ( print | reset | save name | load name | clear | add itemid character | del itemid | autoloot on/off )");
+	end
 end
 
 local function Init()
