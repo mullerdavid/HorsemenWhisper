@@ -36,36 +36,129 @@ local function MasterLootDistribute_OnLootMethodChanged()
 end
 
 local function MasterLootDistribute_OnLootReady()
+	local player = UnitName("player")
+	local masterloot = GetLootMethod() == "master"
 	for i = GetNumLootItems(),1,-1
 	do
 		if (LootSlotHasItem(i)) 
 		then
-			local iteminfo, done = GetLootSlotLink(i), false;
-			if iteminfo
+			local done = false
+			if (masterloot)
 			then
-				local _, itemid = strsplit(":", iteminfo)
-				local candidate = MasterLootDistribute_Current[itemid]
-				if candidate
+				local iteminfo = GetLootSlotLink(i);
+				if iteminfo
 				then
-					for ci = 1, 40 
-					do
-						if GetMasterLootCandidate(i, ci) == candidate
-						then 
-							GiveMasterLoot(i, ci)
-							done = true
+					local _, itemid = strsplit(":", iteminfo)
+					local candidate = MasterLootDistribute_Current[itemid]
+					if candidate
+					then
+						for ci = 1, 40 
+						do
+							if GetMasterLootCandidate(i, ci) == candidate
+							then 
+								GiveMasterLoot(i, ci)
+								done = true
+								break 
+							end
 						end
 					end
 				end
 			end
 			if (autoloot and not done)
 			then
-				LootSlot(i)
+				if (masterloot)
+				then
+					for ci = 1, 40 
+					do
+						if GetMasterLootCandidate(i, ci) == player
+						then 
+							GiveMasterLoot(i, ci)
+							done = true
+							break 
+						end
+					end
+				end
+				if (LootSlotHasItem(i)) -- LootFrame.selectedItemName ??
+				then
+					LootSlot(i)
+				end
 				ConfirmLootSlot(i)
 			end
 		else
 			LootSlot(i)
 		end
     end
+end
+
+local vendors = {
+    ["Qia"] = {
+        ["Pattern: Runecloth Gloves"] = true,
+        ["Pattern: Runecloth Bag"] = true,
+    },
+    ["Jandia"] = {
+        ["Design: Pendant of the Agate Shield"] = true
+    },
+    ["Lhara"] = {
+		["_gossip"] = 1,
+        ["Mana Thistle"] = true,
+        ["Fel Lotus"] = true,
+        ["Netherbloom"] = true,
+        ["Heavy Knothide Leather"] = true,
+        ["Black Lotus"] = true,
+        ["Terocone"] = true,
+    },
+    ["Professor Thaddeus Paleo"] = {
+		["_gossip"] = 1,
+        ["Living Ruby"] = true,
+        ["Scroll of Agility V"] = true,
+        ["Scroll of Strength V"] = true,
+        ["Mote of Air"] = true,
+        ["Mote of Fire"] = true,
+        ["Mote of Mana"] = true,
+        ["Mote of Shadow"] = true,
+    },
+}
+
+local function MasterLootDistribute_OnMerchantDialog()
+	if IsShiftKeyDown() then return end
+	
+	local target = UnitName("target")
+    if not target then return end 
+	
+	local vendor = vendors[target]
+    if not vendor then return end
+	
+	if vendor["_gossip"] then
+		pcall(function() SelectGossipOption(vendor["_gossip"]) end)
+	end
+end
+
+local function MasterLootDistribute_OnMerchant()
+	if IsShiftKeyDown() then return end 
+	
+	local target = UnitName("target")
+    if not target then return end 
+	
+	local vendor = vendors[target]
+    if not vendor then return end
+
+    local numItems = GetMerchantNumItems()
+    for i = numItems, 1, -1 do
+        local name = GetMerchantItemInfo(i)
+        if vendor[name] then
+            print("Buying: " .. name)
+            pcall(function() BuyMerchantItem(i) end)
+        end
+    end
+    
+    local count = 0
+    frame:SetScript("OnUpdate", function(self)
+        count = count + 1
+        if count > 10 then
+            CloseMerchant()
+            frame:SetScript("OnUpdate", nil)
+        end
+    end)
 end
 
 local function ProcessCommand(msg)
@@ -130,6 +223,18 @@ local function ProcessCommand(msg)
 			autoloot = false
 			MasterLootDistribute_OnLootMethodChanged()
 		end
+	elseif cmd == "snipe" 
+	then
+		if (args=="on")
+		then
+			frame:RegisterEvent("MERCHANT_SHOW")
+			frame:RegisterEvent("GOSSIP_SHOW")
+			print("Snipe on.")
+		else
+			frame:UnRegisterEvent("MERCHANT_SHOW")
+			frame:UnRegisterEvent("GOSSIP_SHOW")
+			print("Snipe off.")
+		end
 	else
 		print("Syntax: " .. SLASH_MasterLootDistribute1 .. " ( print | reset | save name | load name | clear | add itemid character | del itemid | autoloot on/off )");
 	end
@@ -159,6 +264,12 @@ local function OnEvent(self, event, arg1)
     elseif event == "LOOT_READY" 
 	then
         MasterLootDistribute_OnLootReady()
+    elseif event == "MERCHANT_SHOW" 
+	then
+        MasterLootDistribute_OnMerchant()
+    elseif event == "GOSSIP_SHOW" 
+	then
+        MasterLootDistribute_OnMerchantDialog()
 	end
 end
 
