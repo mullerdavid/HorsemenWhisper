@@ -103,7 +103,7 @@ local vendors = {
         ["Mana Thistle"] = true,
         ["Fel Lotus"] = true,
         ["Netherbloom"] = true,
-        ["Heavy Knothide Leather"] = true,
+        ["Heavy Knothide Leather"] = false,
         ["Black Lotus"] = true,
         ["Terocone"] = true,
     },
@@ -236,7 +236,7 @@ local function ProcessCommand(msg)
 			print("Snipe off.")
 		end
 	else
-		print("Syntax: " .. SLASH_MasterLootDistribute1 .. " ( print | reset | save name | load name | clear | add itemid character | del itemid | autoloot on/off )");
+		print("Syntax: " .. SLASH_MasterLootDistribute1 .. " ( print | reset | save name | load name | clear | add itemid character | del itemid | autoloot on/off | snipe on/off )");
 	end
 end
 
