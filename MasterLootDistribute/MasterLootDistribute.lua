@@ -92,30 +92,38 @@ end
 
 local vendors = {
     ["Qia"] = {
-        ["Pattern: Runecloth Gloves"] = true,
-        ["Pattern: Runecloth Bag"] = true,
+        ["Pattern: Runecloth Gloves"] = false,
+        ["Pattern: Runecloth Bag"] = false,
     },
     ["Jandia"] = {
-        ["Design: Pendant of the Agate Shield"] = true
+        ["Design: Pendant of the Agate Shield"] = false
     },
     ["Lhara"] = {
 		["_gossip"] = 1,
         ["Mana Thistle"] = true,
         ["Fel Lotus"] = true,
         ["Netherbloom"] = true,
+        ["Thick Clefthoof Leather"] = true,
         ["Heavy Knothide Leather"] = false,
         ["Black Lotus"] = true,
         ["Terocone"] = true,
+        ["Nightmare Vine"] = true,
     },
     ["Professor Thaddeus Paleo"] = {
 		["_gossip"] = 1,
         ["Living Ruby"] = true,
         ["Scroll of Agility V"] = true,
-        ["Scroll of Strength V"] = true,
+        ["Scroll of Strength V"] = true,	
+        ["Scroll of Protection V"] = true,
         ["Mote of Air"] = true,
         ["Mote of Fire"] = true,
         ["Mote of Mana"] = true,
+        ["Mote of Life"] = true,
         ["Mote of Shadow"] = true,
+    },
+    ["Field Repair Bot 110G"] = {
+        ["Scroll of Agility V"] = true,
+        ["Scroll of Strength V"] = true,	
     },
 }
 
@@ -144,10 +152,12 @@ local function MasterLootDistribute_OnMerchant()
 
     local numItems = GetMerchantNumItems()
     for i = numItems, 1, -1 do
-        local name = GetMerchantItemInfo(i)
-        if vendor[name] then
-            print("Buying: " .. name)
-            pcall(function() BuyMerchantItem(i) end)
+        local name, _, _, _, numAvailable = GetMerchantItemInfo(i)
+        if vendor[name] and numAvailable>0 then
+            print("Buying: " .. name .. " x" .. numAvailable)
+			for j = 1,numAvailable do
+				pcall(function() BuyMerchantItem(i) end)
+			end
         end
     end
     
