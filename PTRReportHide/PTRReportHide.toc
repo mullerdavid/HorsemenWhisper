@@ -1,0 +1,9 @@
+## Interface:11307
+## Title: PTRReportHide
+## Author: Deathbaron
+## Version: 0.1
+## Dependencies: 
+## Notes: PTRReportHide
+## SavedVariables: 
+
+PTRReportHide.lua
