@@ -10,10 +10,7 @@ local function Init()
 	end
 	local textureInfo = LFG_EYE_TEXTURES["default"];
 	eye.Texture:SetTexCoord(0, textureInfo.iconSize / textureInfo.width, 0, textureInfo.iconSize / textureInfo.height);
-	MiniMapLFGFrame:Hide()
-	MiniMapLFGFrame:HookScript("OnShow", function(self) MiniMapLFGFrame:Hide() print() end)
-	MiniMapWorldMapButton:Hide()
-	MiniMapWorldMapButton:HookScript("OnShow", function(self) MiniMapWorldMapButton:Hide() end)
+	MiniMapWorldMapButton:HookScript("OnClick", function(self) print("click") end)
 end
 
 local function OnEvent(self, event, arg1)

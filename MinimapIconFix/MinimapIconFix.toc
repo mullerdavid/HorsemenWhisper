@@ -1,8 +1,9 @@
 ## Interface:11307
 ## Title: MinimapIconFix
 ## Author: Deathbaron
-## Version: 0.1
+## Version: 0.2
 ## Dependencies: 
+##OptionalDeps: AtlasLootClassic
 ## Notes: MinimapIconFix
 ## SavedVariables: 
 
