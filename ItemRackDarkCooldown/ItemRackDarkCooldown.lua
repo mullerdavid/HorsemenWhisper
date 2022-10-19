@@ -18,9 +18,15 @@ local function FixColorMenu()
 
 end
 
+local function FixMinimapTooltip(tooltip)
+	tooltip:ClearAllPoints()
+	tooltip:SetPoint("BOTTOMRIGHT", UIParent, "BOTTOMRIGHT", -CONTAINER_OFFSET_X - 13, CONTAINER_OFFSET_Y);
+end
+
 local function Init()
 	hooksecurefunc(ItemRack, "UpdateButtonCooldowns", FixColorButton)
 	hooksecurefunc(ItemRack, "UpdateMenuCooldowns", FixColorMenu)
+	hooksecurefunc(ItemRack, "MinimapOnEnter", FixMinimapTooltip)
 end
 
 local function OnEvent(self, event, arg1)
