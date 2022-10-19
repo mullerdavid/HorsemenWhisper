@@ -1,0 +1,9 @@
+## Interface:11307
+## Title: ItemRackDarkCooldown
+## Author: Deathbaron
+## Version: 0.1
+## Dependencies: ItemRack
+## Notes: Dark cooldown for ItemRack buttons
+## SavedVariables: 
+
+ItemRackDarkCooldown.lua
