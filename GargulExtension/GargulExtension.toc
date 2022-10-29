@@ -7,4 +7,3 @@
 ## SavedVariables: 
 
 GargulExtension.lua
-## GargulExtension.xml
