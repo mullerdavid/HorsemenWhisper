@@ -109,60 +109,100 @@ local function CountForItem(itemID)
 
 end
 
+local function LinkItem(itemLink)
+	local itemID = GL:getItemIDFromLink(itemLink)
+	local TMBInfo = GL.TMB:byItemLink(itemLink)
+	
+	if (GL:empty(TMBInfo)) then
+		return
+	end
+
+	
+	local WishListEntries = {}
+	local itemIsOnSomeonesWishlist = false
+	for _, Entry in pairs(TMBInfo) do
+		local playerName = GL:capitalize(Entry.character)
+		local prio = Entry.prio
+		local sortingOrder = prio
+		local stats = GL.DB.TMB.MetaData.stats and GL.DB.TMB.MetaData.stats[Entry.character:lower()]
+		stats = (stats and IsModifierKeyDown()) and string.format("(%d/%d)", stats["received"], stats["wishlists"]+stats["received"]) or ""
+		table.insert(WishListEntries, {sortingOrder, string.format("%s[%s]%s", playerName, prio, stats)})
+		itemIsOnSomeonesWishlist = true
+
+	end
+
+	if itemIsOnSomeonesWishlist
+	then
+		local join = {}
+		local count = CountForItem(itemID)
+		table.sort(WishListEntries, function (a, b)
+			return a[1] < b[1]
+
+		end)
+
+		for _, Entry in pairs(WishListEntries) do
+			join[#join+1]=Entry[2]
+		end
+		if count > 1
+		then
+			itemLink = itemLink .. "x" .. count
+		end
+		local msg = itemLink .. " " .. table.concat(join, ", ")
+		GL:sendChatMessage(msg, "OFFICER", nil, nil, false)
+	end
+end
+
 
 local function MasterLooterUIDraw(self, itemLink)
 	local ret = L.MasterLooterUIDrawOriginal(self, itemLink)
-	
-	local AceGUI = GL.AceGUI
 
     local ItemIcon = GL.Interface:getItem(self, "Icon.Item")
 	if ItemIcon
 	then
-		ItemIcon:SetCallback("OnClick", function()
-			local itemLink = GL.Interface:getItem(self, "EditBox.Item"):GetText()
-			local itemID = GL:getItemIdFromLink(itemLink)
-			local TMBInfo = GL.TMB:byItemLink(itemLink)
-			
-			if (GL:empty(TMBInfo)) then
-				return
-			end
-		
-			
-			local WishListEntries = {}
-			local itemIsOnSomeonesWishlist = false
-			for _, Entry in pairs(TMBInfo) do
-				local playerName = GL:capitalize(Entry.character)
-				local prio = Entry.prio
-				local sortingOrder = prio
-				local stats = GL.DB.TMB.MetaData.stats and GL.DB.TMB.MetaData.stats[Entry.character:lower()]
-				stats = (stats and IsModifierKeyDown()) and string.format("(%d/%d)", stats["received"], stats["wishlists"]+stats["received"]) or ""
-				table.insert(WishListEntries, {sortingOrder, string.format("%s[%s]%s", playerName, prio, stats)})
-				itemIsOnSomeonesWishlist = true
-
-			end
-
-			if itemIsOnSomeonesWishlist
-			then
-				local join = {}
-				local count = CountForItem(itemID)
-				table.sort(WishListEntries, function (a, b)
-					return a[1] < b[1]
-
-				end)
-
-				for _, Entry in pairs(WishListEntries) do
-					join[#join+1]=Entry[2]
-				end
-				if count > 1
-				then
-					itemLink = itemLink .. "x" .. count
-				end
-				local msg = itemLink .. " " .. table.concat(join, ", ")
-				GL:sendChatMessage(msg, "OFFICER", nil, nil, false)
-			end
-		end)
+		ItemIcon:SetCallback("OnClick", function() 
+			LinkItem(itemLink)
+		end )
 	end
 				
+	return ret
+end
+
+local function AwardDraw(self, itemLink)
+	local ret = L.AwardDrawOriginal(self, itemLink)
+	
+    local ItemIcon = GL.Interface:getItem(self, "Icon.Item")
+	if ItemIcon
+	then
+		ItemIcon:SetCallback("OnClick", function() 
+			LinkItem(itemLink)
+		end )
+	end
+				
+	return ret
+end
+
+local function StartCooldownReopenMasterLooterUIButton()
+	local Button = GL.Interface:getItem(GL.MasterLooterUI, "Frame.OpenMasterLooterButton")
+	
+	if Button
+	then
+		local ButtonCooldown = Button.Cooldown or CreateFrame("Cooldown", nil, Button, "CooldownFrameTemplate")
+		ButtonCooldown:SetAllPoints()
+		Button.Cooldown = ButtonCooldown
+		
+		if GL.RollOff.inProgress and GL.RollOff.CurrentRollOff.start and GL.RollOff.CurrentRollOff.time
+		then
+			ButtonCooldown:SetCooldown(GL.RollOff.CurrentRollOff.start, GL.RollOff.CurrentRollOff.time)
+		end
+	end
+end
+
+local function RollOffStart(self, CommMessage)
+	local ret = L.RollOffStartOriginal(self, CommMessage)
+	self.CurrentRollOff.start = GetTime()
+	
+	StartCooldownReopenMasterLooterUIButton()
+	
 	return ret
 end
 
@@ -174,17 +214,13 @@ local function ReopenMasterLooterUIButtonDraw(self)
 	if Button
 	then
 		local ButtonOverlay = Button:CreateTexture(nil, "OVERLAY")
-
 		ButtonOverlay:SetSize(16,16)
-
 		ButtonOverlay:SetPoint("TOPRIGHT", 5, 5)
-
 		ButtonOverlay:SetTexture("Interface\\GroupFrame\\UI-Group-MasterLooter")
-
 		Button.ButtonOverlay = ButtonOverlay
-
 	end
 	
+	StartCooldownReopenMasterLooterUIButton()
 	
 	return ret
 end
@@ -204,9 +240,13 @@ local function Init()
 	L.TMBImportOriginal = GL.TMB.import
 	GL.TMB.import = TMBImport
 	-- Patching MasterLooterUI
-	L.MasterLooterUIDrawOriginal = Gargul.MasterLooterUI.draw
-	L.ReopenMasterLooterUIButtonDrawOriginal = Gargul.MasterLooterUI.drawReopenMasterLooterUIButton
+	L.RollOffStartOriginal = GL.RollOff.start
+	L.MasterLooterUIDrawOriginal = GL.MasterLooterUI.draw
+	L.AwardDrawOriginal = GL.Interface.Award.draw
+	L.ReopenMasterLooterUIButtonDrawOriginal = GL.MasterLooterUI.drawReopenMasterLooterUIButton
+	GL.RollOff.start = RollOffStart
 	GL.MasterLooterUI.draw = MasterLooterUIDraw
+	GL.Interface.Award.draw = AwardDraw
 	GL.MasterLooterUI.drawReopenMasterLooterUIButton = ReopenMasterLooterUIButtonDraw
 	-- Patching Chat function
 	L.SendChatMessageOriginal = GL.sendChatMessage
