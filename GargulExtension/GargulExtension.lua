@@ -148,6 +148,10 @@ local function LinkItem(itemLink)
 			itemLink = itemLink .. "x" .. count
 		end
 		local msg = itemLink .. " " .. table.concat(join, ", ")
+		if #msg>250
+		then
+			msg = string.sub(msg,0,250)
+		end
 		GL:sendChatMessage(msg, "OFFICER", nil, nil, false)
 	end
 end
