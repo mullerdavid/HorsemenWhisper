@@ -152,7 +152,7 @@ local function LinkItem(itemLink)
 		then
 			msg = string.sub(msg,0,250)
 		end
-		GL:sendChatMessage(msg, "OFFICER", nil, nil, false)
+		GL:sendChatMessage(msg, "OFFICER", nil, nil, false, false)
 	end
 end
 
@@ -160,7 +160,7 @@ end
 local function MasterLooterUIDraw(self, itemLink)
 	local ret = L.MasterLooterUIDrawOriginal(self, itemLink)
 
-    local ItemIcon = GL.Interface:getItem(self, "Icon.Item")
+    local ItemIcon = GL.Interface:get(self, "Icon.Item")
 	if ItemIcon
 	then
 		ItemIcon:SetCallback("OnClick", function() 
@@ -174,7 +174,7 @@ end
 local function AwardDraw(self, itemLink)
 	local ret = L.AwardDrawOriginal(self, itemLink)
 	
-    local ItemIcon = GL.Interface:getItem(self, "Icon.Item")
+    local ItemIcon = GL.Interface:get(self, "Icon.Item")
 	if ItemIcon
 	then
 		ItemIcon:SetCallback("OnClick", function() 
@@ -186,7 +186,7 @@ local function AwardDraw(self, itemLink)
 end
 
 local function StartCooldownReopenMasterLooterUIButton()
-	local Button = GL.Interface:getItem(GL.MasterLooterUI, "Frame.OpenMasterLooterButton")
+	local Button = GL.Interface:get(GL.MasterLooterUI, "Frame.OpenMasterLooterButton")
 	
 	if Button
 	then
@@ -213,7 +213,7 @@ end
 local function ReopenMasterLooterUIButtonDraw(self)
 	local ret = L.ReopenMasterLooterUIButtonDrawOriginal(self)
 	
-	local Button = GL.Interface:getItem(self, "Frame.OpenMasterLooterButton")
+	local Button = GL.Interface:get(self, "Frame.OpenMasterLooterButton")
 
 	if Button
 	then
@@ -229,12 +229,17 @@ local function ReopenMasterLooterUIButtonDraw(self)
 	return ret
 end
 
-local function SendChatMessage(self, message, chatType, language, channel, stw)
+local function SendChatMessage(self, message, chatType, language, channel, stw, pretend)
+	if message=="."
+	then
+		-- Source tampering check in Settings:_init(), checks if message=. chatType=SAY, stw=true starts with Gargul prefix
+		return "{rt3} Gargul : "
+	end
 	if message == "Stop your rolls!"
 	then
 		chatType = GL.User.isInRaid and "RAID" or "PARTY"
 	end
-	local ret = L.SendChatMessageOriginal(self, message, chatType, language, channel, false)
+	local ret = L.SendChatMessageOriginal(self, message, chatType, language, channel, false, false)
 	return ret
 end
 
