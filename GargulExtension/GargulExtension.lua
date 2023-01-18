@@ -111,7 +111,7 @@ end
 
 local function LinkItem(itemLink)
 	local itemID = GL:getItemIDFromLink(itemLink)
-	local TMBInfo = GL.TMB:byItemLink(itemLink)
+	local TMBInfo = GL.TMB:byItemID(itemID)
 	
 	if (GL:empty(TMBInfo)) then
 		return
@@ -433,7 +433,7 @@ function RollerUI:draw(time, itemLink, itemIcon, note, SupportedRolls, userCanUs
 
 	GL:onItemLoadDo(itemLink, 
 		function(data) 
-			local quality = data[1].quality
+			local quality = data.quality or data[1].quality
 			local color = ITEM_QUALITY_COLORS[quality]
 
 			Window.Name:SetVertexColor(color.r, color.g, color.b)
