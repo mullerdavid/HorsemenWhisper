@@ -111,7 +111,7 @@ end
 
 local function LinkItem(itemLink)
 	local itemID = GL:getItemIDFromLink(itemLink)
-	local TMBInfo = GL.TMB:byItemID(itemID)
+	local TMBInfo = GL.TMB:byItemLink(itemLink)
 	
 	if (GL:empty(TMBInfo)) then
 		return

@@ -38,14 +38,15 @@ end
 local function MasterLootDistribute_OnLootReady()
 	local player = UnitName("player")
 	local masterloot = GetLootMethod() == "master"
+	local inraid = IsInRaid()
 	for i = GetNumLootItems(),1,-1
 	do
 		if (LootSlotHasItem(i)) 
 		then
 			local done = false
+			local iteminfo = GetLootSlotLink(i);
 			if (masterloot)
 			then
-				local iteminfo = GetLootSlotLink(i);
 				if iteminfo
 				then
 					local _, itemid = strsplit(":", iteminfo)
@@ -66,23 +67,30 @@ local function MasterLootDistribute_OnLootReady()
 			end
 			if (autoloot and not done)
 			then
-				if (masterloot)
+				local itemName, itemLink, itemQuality, itemLevel, _, _, _, itemStackCount = (function() if iteminfo then return GetItemInfo(iteminfo) end end)()
+				local ITEM_QUALITY_LEGENDARY = 5
+				local skip = false
+				skip = skip or (inraid and itemQuality and ITEM_QUALITY_LEGENDARY <= itemQuality and itemStackCount and 1 < itemStackCount)
+				if not skip
 				then
-					for ci = 1, 40 
-					do
-						if GetMasterLootCandidate(i, ci) == player
-						then 
-							GiveMasterLoot(i, ci)
-							done = true
-							break 
+					if (masterloot)
+					then
+						for ci = 1, 40 
+						do
+							if GetMasterLootCandidate(i, ci) == player
+							then 
+								GiveMasterLoot(i, ci)
+								done = true
+								break 
+							end
 						end
 					end
+					if (LootSlotHasItem(i)) -- LootFrame.selectedItemName ??
+					then
+						LootSlot(i)
+					end
+					ConfirmLootSlot(i)
 				end
-				if (LootSlotHasItem(i)) -- LootFrame.selectedItemName ??
-				then
-					LootSlot(i)
-				end
-				ConfirmLootSlot(i)
 			end
 		else
 			LootSlot(i)
@@ -100,30 +108,38 @@ local vendors = {
     },
     ["Lhara"] = {
 		["_gossip"] = 1,
-        ["Mana Thistle"] = true,
-        ["Fel Lotus"] = true,
-        ["Netherbloom"] = true,
-        ["Thick Clefthoof Leather"] = true,
+        ["Mana Thistle"] = false,
+        ["Fel Lotus"] = false,
+        ["Netherbloom"] = false,
+        ["Thick Clefthoof Leather"] = false,
         ["Heavy Knothide Leather"] = false,
-        ["Black Lotus"] = true,
-        ["Terocone"] = true,
-        ["Nightmare Vine"] = true,
+        ["Black Lotus"] = false,
+        ["Terocone"] = false,
+        ["Nightmare Vine"] = false,
     },
     ["Professor Thaddeus Paleo"] = {
 		["_gossip"] = 1,
-        ["Living Ruby"] = true,
-        ["Scroll of Agility V"] = true,
-        ["Scroll of Strength V"] = true,	
-        ["Scroll of Protection V"] = true,
-        ["Mote of Air"] = true,
-        ["Mote of Fire"] = true,
-        ["Mote of Mana"] = true,
-        ["Mote of Life"] = true,
-        ["Mote of Shadow"] = true,
+        ["Living Ruby"] = false,
+        ["Scroll of Agility V"] = false,
+        ["Scroll of Strength V"] = false,	
+        ["Scroll of Protection V"] = false,
+        ["Mote of Air"] = false,
+        ["Mote of Fire"] = false,
+        ["Mote of Mana"] = false,
+        ["Mote of Life"] = false,
+        ["Mote of Shadow"] = false,
     },
     ["Field Repair Bot 110G"] = {
-        ["Scroll of Agility V"] = true,
-        ["Scroll of Strength V"] = true,	
+        ["Scroll of Agility V"] = false,
+        ["Scroll of Strength V"] = false,	
+    },
+    ["Kulwia"] = {
+        ["Formula: Enchant Cloak - Minor Agility"] = true,
+        ["Formula: Enchant Bracer - Lesser Strength"] = true,	
+    },
+    ["Lorelae Wintersong"] = {
+        ["Formula: Runed Arcanite Rod"] = true,
+        ["Formula: Enchant Cloak - Superior Defense"] = true,	
     },
 }
 
