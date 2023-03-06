@@ -246,6 +246,9 @@ local function SendChatMessage(self, message, chatType, language, channel, stw, 
 	return ret
 end
 
+local function Empty()
+end
+
 local function Init()
 	GL = _G["Gargul"]
 	-- Patching Import function
@@ -263,6 +266,8 @@ local function Init()
 	-- Patching Chat function
 	L.SendChatMessageOriginal = GL.sendChatMessage
 	GL.sendChatMessage = SendChatMessage
+	-- Patching Conflicting Addon Message
+	GL.announceConflictingAddons = Empty
 	-- Replacing RollerUI
 	GL.RollerUI = RollerUI
 end
