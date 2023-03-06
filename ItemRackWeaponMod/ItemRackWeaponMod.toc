@@ -1,0 +1,10 @@
+## Interface:11307
+## Title: ItemRackWeaponMod
+## Author: Deathbaron
+## Version: 0.1
+## Dependencies: ItemRack
+## Notes: Weapon extension for temporary enchants and combat swap
+## SavedVariables: 
+
+TempEnchantsDB.lua
+ItemRackWeaponMod.lua
