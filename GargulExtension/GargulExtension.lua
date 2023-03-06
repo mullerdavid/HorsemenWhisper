@@ -1,6 +1,9 @@
 local ADDON, T = ...
 local L = {}
 
+local GetContainerNumSlots = _G.GetContainerNumSlots or C_Container.GetContainerNumSlots
+local GetContainerItemInfo = _G.GetContainerItemInfo or C_Container.GetContainerItemInfo
+
 local GL = nil
 local RollerUI = { Window = nil }
 
