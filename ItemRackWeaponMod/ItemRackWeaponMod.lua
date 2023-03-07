@@ -127,9 +127,9 @@ local function GetOrCreateMenuFrame(id)
 		proxy:SetAttribute("MenuOnShift", ItemRackSettings.MenuOnShift)
 		proxy:SetAttribute("MenuOnRight", ItemRackSettings.MenuOnRight)
 		
-		--TODO
-		--RegisterStateDriver(proxy, "visibility", "[combat,nomod:alt] show; hide")
-		RegisterStateDriver(proxy, "visibility", "[combat,nomod:alt][mod:ctrl,nomod:alt] show; hide")
+		--Debug
+		RegisterStateDriver(proxy, "visibility", "[combat,nomod:alt] show; hide")
+		--RegisterStateDriver(proxy, "visibility", "[combat,nomod:alt][mod:ctrl,nomod:alt] show; hide")
 		
 		menu:SetFrameStrata("HIGH")
 		menu:EnableMouse(true) 
@@ -394,6 +394,51 @@ local function WeaponUpdateMenu(id)
 	end
 end
 
+
+local lastcache
+-- Called every time before buildmenu AddToMenu somewhere
+local function HookGetID()
+	lastcache = nil
+end
+
+-- Called every time on bags and bank
+local function HookPlayerCanWear(invID,bag,slot)
+	if not ItemRack.BankOpen then
+		if invID==slot_mh or invID==slot_oh or invID==slot_ran
+		then
+			lastcache = {}
+			lastcache.bag = bag
+			lastcache.slot = slot
+		end
+	end
+end
+
+local menucache = {}
+local function HookAddToMenu(itemID)
+	-- Same condition
+	if ItemRackSettings.AllowHidden=="OFF" or (IsAltKeyDown() or not ItemRack.IsHidden(itemID)) then
+		menucache[#ItemRack.Menu]=lastcache -- no need to delete, items are overriden
+	end
+end
+
+local function HookBuildMenu()
+	for i=1,#(ItemRack.Menu) 
+	do
+		local button = _G["ItemRackMenu"..i]
+		if button:IsShown() 
+		then
+			local name, shortname
+			if ItemRack.Menu[i]~=0 and menucache[i]
+			then
+				HiddenTooltip:ClearLines()
+				HiddenTooltip:SetBagItem(menucache[i].bag, menucache[i].slot)
+				name, shortname = ExtractTempEnchName(HiddenTooltip)
+			end
+			SetTempEnchantIcon(button, name, shortname)
+		end
+	end
+end
+
 WeaponBuildMenu = function(id)
 	if not InCombatLockdown()
 	then
@@ -427,13 +472,13 @@ end
 
 local initialized = false
 
-local function InitButtons()
+local function WeaponInitButtons()
 	initialized = true
 	WeaponBuildAllMenu()
 	ItemRack.WeaponBuildAllMenu = WeaponBuildAllMenu
 end
 
-local function UpdateButtonCooldowns()
+local function WeaponUpdateButtonCooldowns()
 	if not initialized then return end
 	WeaponUpdateMenu(slot_mh)
 	WeaponUpdateMenu(slot_oh)
@@ -453,10 +498,15 @@ end
 local function Init()
 	UpdateTempEnchantsEquipped()
 	
-	hooksecurefunc(ItemRack, "InitButtons", InitButtons)
-	hooksecurefunc(ItemRack, "UpdateButtonCooldowns", UpdateButtonCooldowns)
+	hooksecurefunc(ItemRack, "InitButtons", WeaponInitButtons)
 	hooksecurefunc(ItemRack, "OnUnitInventoryChanged", WeaponRebuildAllMenu)
 	hooksecurefunc(ItemRack, "OnBankClose", WeaponRebuildAllMenu)
+	hooksecurefunc(ItemRack, "UpdateButtonCooldowns", WeaponUpdateButtonCooldowns)
+
+	hooksecurefunc(ItemRack, "PlayerCanWear", HookPlayerCanWear)
+	hooksecurefunc(ItemRack, "AddToMenu", HookAddToMenu)
+	hooksecurefunc(ItemRack, "GetID", HookGetID)
+	hooksecurefunc(ItemRack, "BuildMenu", HookBuildMenu)
 end
 
 local function InitOptions()
@@ -488,8 +538,6 @@ frame:SetScript("OnEvent", OnEvent)
 local frameupdate = CreateFrame("Frame")
 frameupdate:RegisterEvent("BAG_UPDATE")
 frameupdate:SetScript("OnEvent", WeaponRebuildAllMenu)
-
--- TODO: poison icons for ItemRack menu
 
 ExtractTempEnchName = function(tooltip)
 	for i,region in ipairs({ tooltip:GetRegions() })
