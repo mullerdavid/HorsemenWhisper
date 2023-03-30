@@ -18,6 +18,10 @@ HiddenTooltip:AddFontStrings(
 	HiddenTooltip:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),
 	HiddenTooltip:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" )
 )
+HiddenTooltip:AddFontStrings(
+	HiddenTooltip:CreateFontString( "$parentTextLeft9", nil, "GameTooltipText" ),
+	HiddenTooltip:CreateFontString( "$parentTextRight9", nil, "GameTooltipText" )
+)
 
 function ItemRackWeaponMod:CreateMenuHook()
 end
@@ -620,7 +624,7 @@ local function UpdateTempEnchantsEquippedDelayed()
 end
 
 local frametench = CreateFrame("Frame")
-frameupdate:RegisterEvent("UNIT_INVENTORY_CHANGED")
-frameupdate:RegisterEvent("PLAYER_ENTERING_WORLD")
-frameupdate:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
-frameupdate:SetScript("OnEvent", UpdateTempEnchantsEquippedDelayed)
+frametench:RegisterEvent("UNIT_INVENTORY_CHANGED")
+frametench:RegisterEvent("PLAYER_ENTERING_WORLD")
+frametench:RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+frametench:SetScript("OnEvent", UpdateTempEnchantsEquippedDelayed)
