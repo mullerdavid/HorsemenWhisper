@@ -307,7 +307,7 @@ local function WeaponBuildMenuNoCombat(id)
 	
 	local max_cols = 1
 	local numitems = #items
-	local extra = (not ItemRack.BankOpen and ItemRackSettings.AllowEmpty=="ON") and 1
+	local extra = (not ItemRack.BankOpen and ItemRackSettings.AllowEmpty=="ON") and 1 or 0
 
 	if ItemRackUser.SetMenuWrap=="ON" then
 		max_cols = ItemRackUser.SetMenuWrapValue
