@@ -14,14 +14,12 @@ local slot_ran = GetInventorySlotInfo("RangedSlot")
 local HiddenTooltip = CreateFrame("GameTooltip", "ItemRackWeaponModTooltip", nil, "GameTooltipTemplate")
 HiddenTooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
 HiddenTooltip:SetScript("Onload", function(self) self:SetOwner(WorldFrame, "ANCHOR_NONE") end)
-HiddenTooltip:AddFontStrings(
-	HiddenTooltip:CreateFontString( "$parentTextLeft1", nil, "GameTooltipText" ),
-	HiddenTooltip:CreateFontString( "$parentTextRight1", nil, "GameTooltipText" )
-)
-HiddenTooltip:AddFontStrings(
-	HiddenTooltip:CreateFontString( "$parentTextLeft9", nil, "GameTooltipText" ),
-	HiddenTooltip:CreateFontString( "$parentTextRight9", nil, "GameTooltipText" )
-)
+for i=1,32 do
+	HiddenTooltip:AddFontStrings(
+		HiddenTooltip:CreateFontString( "$parentTextLeft"..i, nil, "GameTooltipText" ),
+		HiddenTooltip:CreateFontString( "$parentTextRight"..i, nil, "GameTooltipText" )
+	)
+end
 
 function ItemRackWeaponMod:CreateMenuHook()
 end
