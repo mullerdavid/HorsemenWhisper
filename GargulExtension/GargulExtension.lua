@@ -5,6 +5,7 @@ local GetContainerNumSlots = _G.GetContainerNumSlots or C_Container.GetContainer
 local GetContainerItemInfo = _G.GetContainerItemInfo or C_Container.GetContainerItemInfo
 
 local GL = nil
+local GargulDB = nil
 local RollerUI = { Window = nil }
 
 local function TMBImport(self, data, triedToDecompress)
@@ -31,7 +32,7 @@ local function TMBImport(self, data, triedToDecompress)
 					
 					local CSVParts
 
-					CSVParts = GL:strSplit(line, ",")
+					CSVParts = GL:explode(line, ",")
 
 					-- We can't handle this line it seems
 					if (not CSVParts[2] or CSVParts[1] ~= "wishlist") then
@@ -72,7 +73,6 @@ local function TMBImport(self, data, triedToDecompress)
 						datatable["stats"][characterName] = { ["received"] = 0, ["wishlists"] = 0 }
 					end
 					datatable["stats"][characterName][key] = datatable["stats"][characterName][key] + 1
-					
 				end)()
 			end
 			first = false
@@ -83,12 +83,14 @@ local function TMBImport(self, data, triedToDecompress)
 		if jsonEncodeSucceeded
 		then
 			local ret = L.TMBImportOriginal(self, WebsiteData, true)
-			GL.DB.TMB.MetaData.stats = datatable.stats
+			GargulDB.TMB.MetaData = GargulDB.TMB.MetaData or {}
+			GargulDB.TMB.MetaData.stats = datatable.stats
 			return ret
 		end
 	end
 	local ret = L.TMBImportOriginal(self, data, triedToDecompress)
-	GL.DB.TMB.MetaData.stats = nil
+	GargulDB.TMB.MetaData = GargulDB.TMB.MetaData or {}
+	GargulDB.TMB.MetaData.stats = nil
 	return ret
 end
 
@@ -127,7 +129,7 @@ local function LinkItem(itemLink)
 		local playerName = GL:capitalize(Entry.character)
 		local prio = Entry.prio
 		local sortingOrder = prio
-		local stats = GL.DB.TMB.MetaData.stats and GL.DB.TMB.MetaData.stats[Entry.character:lower()]
+		local stats = GargulDB.TMB.MetaData.stats and GargulDB.TMB.MetaData.stats[Entry.character:lower()]
 		stats = (stats and IsModifierKeyDown()) and string.format("(%d/%d)", stats["received"], stats["wishlists"]+stats["received"]) or ""
 		table.insert(WishListEntries, {sortingOrder, string.format("%s[%s]%s", playerName, prio, stats)})
 		itemIsOnSomeonesWishlist = true
@@ -251,6 +253,7 @@ end
 
 local function Init()
 	GL = _G["Gargul"]
+	GargulDB = _G["GargulDB"]
 	-- Patching Import function
 	L.TMBImportOriginal = GL.TMB.import
 	GL.TMB.import = TMBImport
