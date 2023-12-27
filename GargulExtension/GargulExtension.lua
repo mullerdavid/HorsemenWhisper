@@ -8,6 +8,15 @@ local GL = nil
 local GargulDB = nil
 local RollerUI = { Window = nil }
 
+local function GetCurrentHash()
+	local DB = _G["GargulDB"]
+	--DB.TMB.MetaData.hash
+	if DB.TMB and DB.TMB.MetaData and DB.TMB.MetaData.importedAt
+	then
+		return DB.TMB.MetaData.importedAt
+	end
+end
+
 local function TMBImport(self, data, triedToDecompress)
 	local firstLine = data:match("[^\n]+")
 
@@ -83,14 +92,14 @@ local function TMBImport(self, data, triedToDecompress)
 		if jsonEncodeSucceeded
 		then
 			local ret = L.TMBImportOriginal(self, WebsiteData, true)
-			GargulDB.TMB.MetaData = GargulDB.TMB.MetaData or {}
-			GargulDB.TMB.MetaData.stats = datatable.stats
+			GargulDB.stats = datatable.stats
+			GargulDB.hash = GetCurrentHash()
 			return ret
 		end
 	end
 	local ret = L.TMBImportOriginal(self, data, triedToDecompress)
-	GargulDB.TMB.MetaData = GargulDB.TMB.MetaData or {}
-	GargulDB.TMB.MetaData.stats = nil
+	GargulDB.stats = nil
+	GargulDB.hash = nil
 	return ret
 end
 
@@ -122,6 +131,10 @@ local function LinkItem(itemLink)
 		return
 	end
 
+	--if GargulDB.hash ~= GetCurrentHash() 
+	--then
+	--	print("Warning: DB mismatch, might be outdated import")
+	--end
 	
 	local WishListEntries = {}
 	local itemIsOnSomeonesWishlist = false
@@ -129,7 +142,7 @@ local function LinkItem(itemLink)
 		local playerName = GL:capitalize(Entry.character)
 		local prio = Entry.prio
 		local sortingOrder = prio
-		local stats = GargulDB.TMB.MetaData.stats and GargulDB.TMB.MetaData.stats[Entry.character:lower()]
+		local stats = GargulDB.stats and GargulDB.stats[Entry.character:lower()]
 		stats = (stats and IsModifierKeyDown()) and string.format("(%d/%d)", stats["received"], stats["wishlists"]+stats["received"]) or ""
 		table.insert(WishListEntries, {sortingOrder, string.format("%s[%s]%s", playerName, prio, stats)})
 		itemIsOnSomeonesWishlist = true
@@ -251,9 +264,29 @@ end
 local function Empty()
 end
 
+local function ImporterDraw(self, ...)
+	ret = L.ImporterDrawOriginal(self, ...)
+	pcall(function () 
+		print("ImporterDraw")
+		local Window = self.InterfaceItems.Frame.Window
+		local TMBBox = nil
+		for _, child in ipairs(Window.children) do
+			if child.type == "MultiLineEditBox" then
+				TMBBox = child
+			end
+		end
+		--TMBBox.editBox:SetMultiLine(False)
+	end)
+	return ret
+end
+
 local function Init()
 	GL = _G["Gargul"]
-	GargulDB = _G["GargulDB"]
+	_G["GargulDBExtension"] = _G["GargulDBExtension"] or {}
+	GargulDB = _G["GargulDBExtension"]
+	-- Patching Importer UI
+	-- L.ImporterDrawOriginal = GL.Interface.TMB.Importer.draw
+	-- GL.Interface.TMB.Importer.draw = ImporterDraw
 	-- Patching Import function
 	L.TMBImportOriginal = GL.TMB.import
 	GL.TMB.import = TMBImport

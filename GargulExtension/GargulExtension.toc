@@ -4,6 +4,6 @@
 ## Version: 0.4
 ## Dependencies: Gargul
 ## Notes: Gargul Extension
-## SavedVariables: 
+## SavedVariables: GargulDBExtension
 
 GargulExtension.lua
