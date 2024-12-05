@@ -101,6 +101,7 @@ T.TempEnchantsDB =
 	["Minor Mana Oil"] = 134878,
 	["Minor Wizard Oil"] = 134711,
 	["Fishing Lure (+50 Fishing Skill)"] = 136245,
+	["Fishing Lure +50"] = 136245,
 	["Poison"] = 132273,
 	["+10% Mount Speed"] = 135913,
 	["Righteous Weapon Coating"] = 134723,
@@ -154,4 +155,8 @@ T.TempEnchantsDB =
 	["Wound Poison V"] = 134197,
 	["Wound Poison VI"] = 134197,
 	["Wound Poison VII"] = 134197,
+	["Fishing Lure +25"] = 134335,
+	["Fishing Lure +50"] = 134139,
+	["Fishing Lure +75"] = 134324,
+	["Fishing Lure +100"] = 133982,
 }
