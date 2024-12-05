@@ -1,7 +1,7 @@
 ## Interface:11307
 ## Title: ItemRackWeaponMod
 ## Author: Deathbaron
-## Version: 0.1
+## Version: 0.2
 ## Dependencies: ItemRack
 ## Notes: Weapon extension for temporary enchants and combat swap
 ## SavedVariables: 

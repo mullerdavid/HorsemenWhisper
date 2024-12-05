@@ -541,6 +541,11 @@ local frameupdate = CreateFrame("Frame")
 frameupdate:RegisterEvent("BAG_UPDATE")
 frameupdate:SetScript("OnEvent", WeaponRebuildAllMenu)
 
+local function RemoveTime(str)
+	local replaced, _ = string.gsub(str, "%s?%(%d+%D+%)%s*$", "")
+	return replaced
+end
+
 ExtractTempEnchName = function(tooltip)
 	for i,region in ipairs({ tooltip:GetRegions() })
 	do
@@ -552,11 +557,11 @@ ExtractTempEnchName = function(tooltip)
 			then
                 local _, _, name, shortenedName = text:find("^((.-) ?+?[VIX%d]*) ?%(%d+%D+%)$");
                 if(name and name ~= "" and not string.find(name, ":")) then
-					return name, shortenedName;
+					return RemoveTime(name), RemoveTime(shortenedName);
                 end
                 _, _, name, shortenedName = text:find("^((.-) ?+?[VIX%d]*)%（%d+.%D%）$");
                 if(name and name ~= "" and not string.find(name, ":")) then
-					return name, shortenedName;
+					return RemoveTime(name), RemoveTime(shortenedName);
                 end
             end
         end
